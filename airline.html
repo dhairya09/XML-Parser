@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Form_Page</title>
+  <script>
+  function validateForm()
+  {
+
+    var x = document.getElementById("url").value;
+
+    if(x == "" || x.length == 0){
+      alert("Text-Box can't be left empty");
+      //return false;
+    }
+    else if (myTrim(x).length == 0) {
+      // string only contained whitespace (ie. spaces, tabs or line breaks)
+
+      alert("Just WhiteSpaces not allowed");
+      //return false;
+    }
+    /*else if((myTrim(x).localeCompare("http://localhost:500/USC_HW4/airlinel)) != 0){
+    alert("Error in XML file");
+  }*/
+
+
+  else{
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200)
+      {
+        myFunction(this);
+      }
+
+
+    };
+    xhttp.open("POST", x, false);
+    try{
+      xhttp.send();
+      if(xhttp.status == 404){
+        alert("XML Doc not there");
+        return;
+      }
+    }
+    catch(e){
+      alert("XML Doc not there\n"+ e.message);
+      return;
+    }
+
+
+    function myFunction(xml) {
+      var xmlDoc = xml.responseXML;
+      var xml_String = xml.responseText;
+      var output = new DOMParser().parseFromString(xml_String,'text/xml');
+      if(output.documentElement.nodeName == "parsererror"){
+        alert("Error in Parsing Xml");
+        return;
+
+      }
+
+      var len = output.getElementsByTagName("Row").length;
+      //alert(len);
+      if(len == 0){
+        alert("No airlines");
+        return;
+        //return false;
+      }
+      else{
+        var new_table;
+        var mywindow = window.open("","Plane_Table","width=1000,height=800");
+        //ExtractInfo("AirlineTable",xmlDoc);
+
+        mywindow.document.write("<table border=1>");
+
+        mywindow.document.write("<thead>");
+
+        var Header_baap = xmlDoc.getElementsByTagName("Header");
+
+        //var header_part = xmlDoc.getElementsByTagName("Data")[0];
+
+        for(var i=0;i< Header_baap.length;i++)
+        {
+          mywindow.document.write("<tr>");
+          var baap = Header_baap[i];
+
+          var datastr = baap.getElementsByTagName("Data");
+          for(var j=0;j < datastr.length; j++){
+            mywindow.document.write("<th>");
+            mywindow.document.write(datastr[j].firstChild.data);
+            mywindow.document.write("</th>");
+
+
+
+          }
+          mywindow.document.write("</tr>");
+          //new_heading.appendChild(datastr);
+
+
+        }
+        mywindow.document.write("</thead>");
+        mywindow.document.write("<tbody>");
+        var sections = xmlDoc.getElementsByTagName("Row");
+        for(var j=0; j < sections.length; j++)
+        {
+
+
+          mywindow.document.write("<tr>");
+          mywindow.document.write("<td>");
+
+          var Airline_Info = sections.item(j).getElementsByTagName("Airline")[0];
+
+          /*if (Airline_info.childNodes[0].childNodes[0].length == 0) {
+            var Airline = "";
+          }
+          else {
+            var Airline= Airline_info.childNodes[0].nodeValue;
+          }*/
+
+
+            //mywindow.document.write(Airline);
+          mywindow.document.write(Airline_Info.firstChild.data);
+          mywindow.document.write("</td>");
+
+          mywindow.document.write("<td>");
+          var IATA_info = sections.item(j).getElementsByTagName("IATA")[0];
+          if (IATA_info.childNodes.length == 0) {
+            var IATA = "";
+          }
+          else {
+            var IATA = IATA_info.childNodes[0].nodeValue;
+          }
+          mywindow.document.write(IATA);
+          mywindow.document.write("</td>");
+
+
+
+          mywindow.document.write("<td>");
+          var Hubs_baap = sections.item(j).getElementsByTagName("Hubs");
+
+
+          for(var l=0;l< Hubs_baap.length;l++)
+          {
+
+            var bapu = Hubs_baap[l];
+            mywindow.document.write("<ul>");
+
+            var hubva = bapu.getElementsByTagName("Hub");
+            for(var m=0;m < hubva.length; m++)
+            {
+              mywindow.document.write("<li>");
+              if(m == 0){
+                mywindow.document.write("<b>");
+                if (hubva[m].childNodes.length == 0) {
+                  var Hub = "";
+                }
+                else {
+                  var Hub = hubva[m].firstChild.data;
+                }
+                mywindow.document.write(Hub);
+                mywindow.document.write("</b>");
+              }
+              else{
+                if (hubva[m].childNodes.length == 0) {
+                  var Hub = "";
+                }
+                else {
+                  var Hub = hubva[m].firstChild.data;
+                }
+                mywindow.document.write(Hub);
+              }
+
+              mywindow.document.write("</li>");
+
+
+            }
+            mywindow.document.write("</ul>");
+            mywindow.document.write("</td>");
+
+
+          }
+
+
+          mywindow.document.write("<td>");
+          var Notes_info = sections.item(j).getElementsByTagName("Notes")[0];
+          if (Notes_info.childNodes.length == 0) {
+            var Notes = "";
+          }
+          else {
+            var Notes = Notes_info.childNodes[0].nodeValue;
+          }
+          mywindow.document.write(Notes);
+          mywindow.document.write("</td>");
+
+
+
+
+          mywindow.document.write("<td>");
+
+          var HomePage_info = sections.item(j).getElementsByTagName("HomePage")[0];
+          if (HomePage_info.childNodes.length == 0) {
+            var HomePage = "";
+          }
+          else {
+            var HomePage = HomePage_info.childNodes[0].nodeValue;
+          }
+          mywindow.document.write("<a href="+HomePage+">");
+          mywindow.document.write(HomePage);
+          mywindow.document.write("</a>");
+          mywindow.document.write("</td>");
+
+
+
+
+          mywindow.document.write("<td>");
+          var Plane_info = sections.item(j).getElementsByTagName("Plane")[0];
+          var image = document.createElement("img");
+          if (Plane_info.childNodes.length == 0) {
+            var Plane = "";
+          }
+          else {
+            var Plane = Plane_info.childNodes[0].nodeValue;
+          }
+          mywindow.document.write("<img src="+Plane+" width="+"220px"+" height="+"120px"+"/>");
+          /*image.setAttribute('src',Plane);
+          image.setAttribute("width","157px");
+          image.setAttribute("height","78px");*/
+          mywindow.document.write("</td>");
+
+
+          mywindow.document.write("</tr>");
+        }
+
+        mywindow.document.write("</tbody>");
+        mywindow.document.write("</table>");
+
+      }
+
+      //alert(length);
+
+    }
+  }
+
+}
+
+function myTrim(x)
+{
+  return x.replace(/^\s+|\s+$/gm,'');
+}
+
+
+</script>
+
+
+
+</head>
+
+
+<body>
+  <div class="Content">
+    <center>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+    <b>Enter URL for Airlines List XML File</b>
+    <br>
+    <br>
+    <br>
+
+    <!--<form name="myForm" onsubmit="return validateForm()" method="post" target="_blank" action="new_window.html">-->
+    <input type="text" id="url" placeholder="Enter URL" value="">
+    <br>
+    <br>
+
+    <input type="submit" value = "Submit Query" onclick="validateForm()">
+  </center>
+
+  </div>
+
+  <table id="AirlineTable" border="1" class="indent">
+    <thead>
+
+
+    </thead>
+    <tbody>
+
+
+    </tbody>
+  </table>
+
+
+</body>
+
+</html>
